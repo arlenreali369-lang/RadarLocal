@@ -1,0 +1,8 @@
+{
+  "name": "Radar Local - Comércio de Bairro & Fidelidade",
+  "description": "Plataforma de vendas e entregas locais com gestão de pedidos, chat em tempo real e fidelidade gamificada para cidades de até 30 mil habitantes.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

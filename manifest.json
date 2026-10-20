@@ -1,0 +1,22 @@
+{
+  "name": "Radar Local - Comércio de Bairro",
+  "short_name": "Radar Local",
+  "description": "Comércio de bairro, pedidos rápidos e fidelidade local.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#10b981",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?w=192&auto=format&fit=crop&q=80",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://images.unsplash.com/photo-1534452203293-494d7ddbf7e0?w=512&auto=format&fit=crop&q=80",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
