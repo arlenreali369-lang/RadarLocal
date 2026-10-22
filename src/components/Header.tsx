@@ -12,7 +12,8 @@ import {
   WifiOff,
   Sparkles,
   MessageCircle,
-  Zap
+  Zap,
+  ShieldCheck
 } from 'lucide-react';
 
 interface HeaderProps {
@@ -286,6 +287,21 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLoyalty, onOpenOrders, onO
               <span className="hidden md:inline">Lojista</span>
               {userRole === 'merchant' && (
                 <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-ping" />
+              )}
+            </button>
+            <button
+              onClick={() => setUserRole('admin')}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                userRole === 'admin'
+                  ? 'bg-indigo-600 text-white shadow-xs'
+                  : 'text-slate-600 hover:text-slate-900'
+              }`}
+              title="Área do Administrador"
+            >
+              <ShieldCheck className="w-3.5 h-3.5 text-indigo-300" />
+              <span className="hidden md:inline">Admin</span>
+              {userRole === 'admin' && (
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
               )}
             </button>
           </div>

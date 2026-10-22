@@ -22,6 +22,7 @@ import {
   MessageCircle,
   CheckCircle2
 } from 'lucide-react';
+import { MerchantInvitationHero } from '../common/MerchantInvitationHero';
 
 interface CustomerHomeProps {
   onSelectStore: (storeId: string) => void;
@@ -126,6 +127,9 @@ export const CustomerHome: React.FC<CustomerHomeProps> = ({
 
   return (
     <div className="max-w-6xl mx-auto px-3 sm:px-6 py-4 sm:py-6 space-y-6 sm:space-y-8">
+      {/* 🚀 First Information in App: Convite a Lojistas & Prestadores de Serviço com Captura de Nome e WhatsApp */}
+      <MerchantInvitationHero />
+
       {/* Search Input Bar */}
       <div className="relative">
         <div className="flex items-center bg-white rounded-2xl border border-slate-200/90 shadow-xs px-4 py-3 focus-within:ring-2 focus-within:ring-emerald-500/20 focus-within:border-emerald-500 transition-all">

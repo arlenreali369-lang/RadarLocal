@@ -27,6 +27,7 @@ import { MerchantOnboardingModal } from './components/merchant/MerchantOnboardin
 import { MerchantShowroomLanding } from './components/merchant/MerchantShowroomLanding';
 import { MerchantLeadsManager } from './components/merchant/MerchantLeadsManager';
 import { MerchantMarketingAgency } from './components/merchant/MerchantMarketingAgency';
+import { AdminDashboard } from './components/admin/AdminDashboard';
 
 import {
   LayoutDashboard,
@@ -241,6 +242,8 @@ const MainAppContent: React.FC = () => {
           ) : customerTab === 'chat' ? (
             <LocalChat />
           ) : null
+        ) : userRole === 'admin' ? (
+          <AdminDashboard />
         ) : (
           /* Merchant Role */
           merchantTab === 'overview' ? (

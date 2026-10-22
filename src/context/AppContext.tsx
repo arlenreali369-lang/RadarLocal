@@ -903,7 +903,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const sendChatMessage = (
     merchantId: string,
     text: string,
-    sender: 'customer' | 'merchant' = userRole,
+    sender: 'customer' | 'merchant' = userRole === 'merchant' ? 'merchant' : 'customer',
     customerName = 'Mariana Duarte',
     imageUrl?: string
   ) => {

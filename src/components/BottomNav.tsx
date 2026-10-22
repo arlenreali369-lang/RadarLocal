@@ -27,6 +27,8 @@ export const BottomNav: React.FC<BottomNavProps> = ({ currentTab, setCurrentTab 
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
+  if (userRole === 'admin') return null;
+
   if (userRole === 'customer') {
     return (
       <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-2 py-1 md:py-2">

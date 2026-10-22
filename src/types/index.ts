@@ -1,4 +1,4 @@
-export type UserRole = 'customer' | 'merchant';
+export type UserRole = 'customer' | 'merchant' | 'admin';
 
 export type OrderStatus = 'pending' | 'preparing' | 'ready_for_pickup' | 'out_for_delivery' | 'delivered' | 'cancelled';
 
@@ -266,7 +266,7 @@ export interface MerchantLead {
   ownerName: string;
   businessType: string;
   phone: string;
-  email: string;
+  email?: string;
   neighborhood: string;
   address?: string;
   deliveryType: 'own_courier' | 'radar_network' | 'pickup' | 'all';
