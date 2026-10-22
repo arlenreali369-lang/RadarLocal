@@ -31,6 +31,7 @@ import {
   Flame,
   Award
 } from 'lucide-react';
+import { ADMIN_EMAIL_RECIPIENT, buildMerchantMailtoUrl } from '../../utils/merchantNotification';
 
 interface MockupTemplate {
   category: string;
@@ -898,6 +899,15 @@ export const MerchantShowroomLanding: React.FC = () => {
               <p className="text-xs sm:text-sm text-emerald-100 leading-relaxed">
                 Preencha as informações básicas do seu negócio abaixo. Após o envio, <strong className="text-white underline">o Administrador do app recebe seus dados e entra em contato com você pelo WhatsApp</strong> para dar início à <strong>Fase 2</strong> (montagem do seu catálogo, fotos oficiais e ativação da vitrine).
               </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-2">
+                <span className="px-3 py-1 rounded-full bg-amber-400 text-slate-950 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 shadow-sm">
+                  🔥 Valor Promocional de Adesão: R$ 42,00/mês
+                </span>
+                <span className="text-xs text-white/90 bg-white/10 px-3 py-1 rounded-full border border-white/20">
+                  Assessoria de Marketing + Banners no App + Sem comissão por venda
+                </span>
+              </div>
             </div>
           </div>
 
@@ -935,7 +945,7 @@ export const MerchantShowroomLanding: React.FC = () => {
                         ✓
                       </div>
                       <p>
-                        <strong>Administrador Notificado:</strong> A coordenação do Radar Local já recebeu seu número de WhatsApp e ramo de atuação.
+                        <strong>E-mail Enviado para a Coordenação:</strong> As informações do estabelecimento, Nome do Responsável (<strong>{registeredLead.ownerName}</strong>) e WhatsApp (<strong>{registeredLead.phone}</strong>) foram enviadas para <strong className="text-emerald-700 underline font-mono">{ADMIN_EMAIL_RECIPIENT}</strong>.
                       </p>
                     </div>
 
@@ -959,8 +969,8 @@ export const MerchantShowroomLanding: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Direct Action Button: Open WhatsApp with Admin */}
-                <div className="max-w-xl mx-auto space-y-3 text-center pt-2">
+                {/* Direct Action Buttons: Open WhatsApp and Email */}
+                <div className="max-w-xl mx-auto space-y-2.5 text-center pt-2">
                   <a
                     href={buildAdminWhatsAppUrl()}
                     target="_blank"
@@ -971,8 +981,24 @@ export const MerchantShowroomLanding: React.FC = () => {
                     <span>Chamar o Administrador no WhatsApp Agora (Iniciar Fase 2)</span>
                   </a>
 
+                  <a
+                    href={buildMerchantMailtoUrl({
+                      ownerName: registeredLead.ownerName,
+                      phone: registeredLead.phone,
+                      storeName: registeredLead.storeName,
+                      neighborhood: registeredLead.neighborhood,
+                      businessType: registeredLead.businessType,
+                      email: registeredLead.email,
+                      deliveryType: registeredLead.deliveryType
+                    })}
+                    className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors border border-slate-200"
+                  >
+                    <Mail className="w-4 h-4 text-emerald-600" />
+                    <span>Enviar Cópia para {ADMIN_EMAIL_RECIPIENT}</span>
+                  </a>
+
                   <p className="text-xs text-slate-500">
-                    Atendimento oficial: {adminWhatsAppFormatted} (Equipe de Implantação João Neiva)
+                    E-mail oficial da administração: <strong className="text-slate-700 font-mono">{ADMIN_EMAIL_RECIPIENT}</strong> • WhatsApp: {adminWhatsAppFormatted}
                   </p>
                 </div>
 

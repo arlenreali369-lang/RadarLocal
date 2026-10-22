@@ -1,4 +1,23 @@
-import { CityInfo, Merchant, Product, Courier, NeighborhoodFee, Promotion, Reward, Order, MatchPushNotification, ChatMessage, LoyaltyMission, LoyaltyBadge, LoyaltyTransaction, MerchantLead } from '../types';
+import {
+  CityInfo,
+  Merchant,
+  Product,
+  Courier,
+  NeighborhoodFee,
+  Promotion,
+  Reward,
+  Order,
+  MatchPushNotification,
+  ChatMessage,
+  LoyaltyMission,
+  LoyaltyBadge,
+  LoyaltyTransaction,
+  MerchantLead,
+  MarketingPackage,
+  AdBanner,
+  ArtCreationRequest,
+  MarketingAdvisor
+} from '../types';
 
 export const CURRENT_CITY: CityInfo = {
   id: 'cidade-joao-neiva',
@@ -1084,7 +1103,7 @@ export const ADMIN_APP_INFO = {
   adminContactName: 'Equipe de Implantação Radar Local',
   whatsappNumber: '5527998991530',
   whatsappFormatted: '(27) 99899-1530',
-  email: 'parcerias.joaoneiva@radarlocal.com.br',
+  email: 'arlenreali369@gmail.com',
   city: 'João Neiva - ES',
   officeHours: 'Segunda a Sábado, das 08h às 19h'
 };
@@ -1138,6 +1157,198 @@ export const MOCK_MERCHANT_LEADS: MerchantLead[] = [
     status: 'pending_contact',
     createdAt: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(),
     adminNotes: 'Quer ativar o Radar Relâmpago das 18h às 21h com combo promocional.'
+  }
+];
+
+export const DEFAULT_MARKETING_ADVISOR: MarketingAdvisor = {
+  name: 'Beatriz Nogueira',
+  role: 'Assessora de Marketing Digital & Criação de Artes',
+  whatsappNumber: ADMIN_APP_INFO.whatsappNumber,
+  whatsappFormatted: ADMIN_APP_INFO.whatsappFormatted,
+  avatarUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=300&auto=format&fit=crop&q=80',
+  statusText: 'Online no WhatsApp • Equipe Radar Criativa Ativa',
+  specialty: 'Criação de Artes Comerciais, Tráfego Local & Gestão de Banners no App'
+};
+
+export const MARKETING_PACKAGES: MarketingPackage[] = [
+  {
+    id: 'pkg-adesao',
+    name: 'Adesão Promocional • Programa de Vendas',
+    tier: 'bronze',
+    priceMonthly: 42.00,
+    originalPriceMonthly: 89.00,
+    isPopular: true,
+    highlightBadge: '🔥 Oferta Promocional de Adesão',
+    tagline: 'Entre no programa de vendas do Radar Local por valor promocional especial para o comércio.',
+    bannerSlotsCount: 1,
+    customArtsCount: 3,
+    pushCampaignsCount: 3,
+    whatsAppSupportTier: 'Assessoria da Equipe de Marketing no WhatsApp',
+    description: 'Adesão oficial da sua loja ao Programa de Vendas Radar Local por apenas R$ 42,00/mês. Nossa equipe cria suas imagens promocionais, posiciona sua loja no topo do app e presta assessoria personalizada pelo WhatsApp.',
+    features: [
+      'Valor promocional de adesão: R$ 42,00/mês (Economia de mais de 50%)',
+      '3 Artes Publicitárias profissionais criadas pela equipe Radar por mês',
+      '1 Espaço de Banner no Carrossel Oficial no topo do App em João Neiva',
+      '3 Disparos de Notificação Push com Match para moradores da cidade',
+      'Assessoria direta no WhatsApp com a equipe de marketing digital',
+      'Vitrine e Catálogo Digital ativos 24h sem comissão sobre suas vendas',
+      'Sem fidelidade ou multa: cancele quando quiser sem pegadinhas'
+    ]
+  },
+  {
+    id: 'pkg-prata',
+    name: 'Aceleração Comercial',
+    tier: 'silver',
+    priceMonthly: 84.00,
+    originalPriceMonthly: 149.00,
+    highlightBadge: 'Mais Banners & Artes',
+    tagline: 'Para lojas que querem acelerar pedidos com presença frequente e mais campanhas.',
+    bannerSlotsCount: 2,
+    customArtsCount: 6,
+    pushCampaignsCount: 8,
+    whatsAppSupportTier: 'Assessoria semanal dedicada 1 a 1 no WhatsApp',
+    description: 'Pacote acelerador: 6 artes publicitárias profissionais por mês, 2 espaços simultâneos de banner no app, selo de Loja em Destaque e consultoria semanal pelo WhatsApp.',
+    features: [
+      '6 Artes Publicitárias de alto padrão (Banners de app, flyers para WhatsApp, stories)',
+      '2 Espaços de Banners simultâneos (Home do App + Topo da Categoria)',
+      '8 Disparos de Match Push nos horários de maior movimento comercial',
+      'Selo Oficial "Lojista em Destaque Radar" no card da sua loja',
+      'Assessoria semanal direta com nossa especialista de marketing no WhatsApp',
+      'Orientação de horários de pico e precificação promocional'
+    ]
+  },
+  {
+    id: 'pkg-ouro',
+    name: 'Agência Radar VIP',
+    tier: 'gold',
+    priceMonthly: 159.00,
+    originalPriceMonthly: 280.00,
+    highlightBadge: 'Máxima Visibilidade na Cidade',
+    tagline: 'Uma agência de marketing digital completa trabalhando exclusivamente para o seu negócio local.',
+    bannerSlotsCount: 4,
+    customArtsCount: 15,
+    pushCampaignsCount: 20,
+    whatsAppSupportTier: 'Gestor de Marketing Dedicado com resposta prioritária',
+    description: 'Artes sob demanda ilimitadas, banner fixo no topo do app, disparos segmentados por bairro, vídeos comerciais e suporte imediato no WhatsApp.',
+    features: [
+      'Criação de artes promocionais sob demanda (cardápios, banners, combos, flyers)',
+      'Banner Fixo Master no topo do app com visualização garantida para todos os clientes',
+      'Até 20 disparos de Match Push segmentados por bairros específicos',
+      'Edição de vídeo/reels comercial com fotos tratadas dos seus produtos',
+      'Gestor de Marketing 1 a 1 dedicado no WhatsApp com prioridade máxima',
+      'Relatório detalhado de visualizações, cliques e pedidos gerados'
+    ]
+  }
+];
+
+export const INITIAL_AD_BANNERS: AdBanner[] = [
+  {
+    id: 'banner-padaria-destaque',
+    merchantId: 'loja-padaria',
+    merchantName: 'Panificadora & Confeitaria Estrela',
+    title: 'Fornada Quentinha das 16h em João Neiva!',
+    subtitle: 'Pão francês crocante saindo do forno a lenha. Peça e receba em até 20 minutos no seu bairro.',
+    imageUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1000&auto=format&fit=crop&q=80',
+    targetCategory: 'Padarias & Cafés',
+    planTier: 'silver',
+    active: true,
+    clicksCount: 142,
+    viewsCount: 1890,
+    badgeLabel: 'Destaque Publicitário Radar',
+    actionText: 'Ver Fornada & Pedir',
+    callToActionKind: 'open_store',
+    discountHighlight: '21% OFF no Pão Francês',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 48).toISOString()
+  },
+  {
+    id: 'banner-pizzaria-destaque',
+    merchantId: 'loja-pizzaria',
+    merchantName: 'Pizzaria & Hamburgueria da Praça',
+    title: 'Noite da Pizza Calabresa & Burger Caipira',
+    subtitle: 'Massa com fermentação artesanal e queijo do interior derretido. Cupom de 20% para moradores.',
+    imageUrl: 'https://images.unsplash.com/photo-1513104890138-7c749659a591?w=1000&auto=format&fit=crop&q=80',
+    targetCategory: 'Lanches & Pizzas',
+    planTier: 'gold',
+    active: true,
+    clicksCount: 285,
+    viewsCount: 3410,
+    badgeLabel: 'Patrocinado Radar VIP',
+    actionText: 'Aproveitar Combo',
+    callToActionKind: 'open_store',
+    discountHighlight: 'Pizza Grande R$ 49,90',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 72).toISOString()
+  },
+  {
+    id: 'banner-eletro-destaque',
+    merchantId: 'serv-eletrica',
+    merchantName: 'EletroNeiva Elétrica Residencial',
+    title: 'Manutenção Elétrica Segura com 20% de Desconto',
+    subtitle: 'Instalação de chuveiros, troca de disjuntores e fiação com eletricista credenciado no seu bairro.',
+    imageUrl: 'https://images.unsplash.com/photo-1621905251189-08b45d6a269e?w=1000&auto=format&fit=crop&q=80',
+    targetCategory: 'Serviços & Manutenção',
+    planTier: 'silver',
+    active: true,
+    clicksCount: 97,
+    viewsCount: 1240,
+    badgeLabel: 'Serviço em Destaque',
+    actionText: 'Chamar no WhatsApp',
+    callToActionKind: 'whatsapp',
+    whatsappNumber: '5527997814455',
+    discountHighlight: 'Orçamento Expresso Grátis',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 24).toISOString()
+  },
+  {
+    id: 'banner-hortifruti-destaque',
+    merchantId: 'loja-mercado',
+    merchantName: 'Mercadinho & Hortifruti São José',
+    title: 'Feira Fresca da Roça Direto dos Produtores de João Neiva',
+    subtitle: 'Verduras colhidas pela manhã e frutas selecionadas com entrega rápida em qualquer bairro.',
+    imageUrl: 'https://images.unsplash.com/photo-1610348725531-843dff563e2c?w=1000&auto=format&fit=crop&q=80',
+    targetCategory: 'Mercearias & Mercados',
+    planTier: 'bronze',
+    active: true,
+    clicksCount: 114,
+    viewsCount: 1580,
+    badgeLabel: 'Publicidade Radar Local',
+    actionText: 'Ver Cesta Verde',
+    callToActionKind: 'open_store',
+    discountHighlight: 'Cesta Orgânica R$ 29,90',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 36).toISOString()
+  }
+];
+
+export const INITIAL_ART_REQUESTS: ArtCreationRequest[] = [
+  {
+    id: 'req-art-1',
+    merchantId: 'loja-padaria',
+    merchantName: 'Panificadora & Confeitaria Estrela',
+    requestType: 'app_banner',
+    title: 'Banner de Fornada Quente das 16h',
+    productOrOffer: 'Pão Francês Crocante com 21% de desconto',
+    regularPrice: 'R$ 12,00',
+    offerPrice: 'R$ 9,50',
+    instructions: 'Colocar foto do pão quentinho saindo do cesto, cores quentes de padaria e chamada para retirar no balcão ou pedir no app.',
+    status: 'published_in_app',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 50).toISOString(),
+    estimatedDeliveryHours: 24,
+    artPreviewUrl: 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1000&auto=format&fit=crop&q=80',
+    designerNotes: 'Arte finalizada e ativada no carrossel de publicidade do app com link direto para a loja.'
+  },
+  {
+    id: 'req-art-2',
+    merchantId: 'loja-padaria',
+    merchantName: 'Panificadora & Confeitaria Estrela',
+    requestType: 'whatsapp_flyer',
+    title: 'Flyer para Status de WhatsApp - Bolo de Cenoura com Chocolate',
+    productOrOffer: 'Bolo Caseiro de Cenoura com Cobertura Vulcão',
+    regularPrice: 'R$ 25,00',
+    offerPrice: 'R$ 19,90',
+    instructions: 'Formato vertical 9:16 para postar no status do WhatsApp da padaria. Destacar o café da tarde.',
+    status: 'ready_for_review',
+    createdAt: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+    estimatedDeliveryHours: 24,
+    artPreviewUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=800&auto=format&fit=crop&q=80',
+    designerNotes: 'Arte criada pela equipe! Pronta para você baixar em alta definição e compartilhar no WhatsApp.'
   }
 ];
 

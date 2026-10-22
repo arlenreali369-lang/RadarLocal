@@ -26,6 +26,7 @@ import { MerchantChat } from './components/merchant/MerchantChat';
 import { MerchantOnboardingModal } from './components/merchant/MerchantOnboardingModal';
 import { MerchantShowroomLanding } from './components/merchant/MerchantShowroomLanding';
 import { MerchantLeadsManager } from './components/merchant/MerchantLeadsManager';
+import { MerchantMarketingAgency } from './components/merchant/MerchantMarketingAgency';
 
 import {
   LayoutDashboard,
@@ -39,7 +40,8 @@ import {
   ShoppingBag,
   Sparkles,
   BookOpen,
-  Users
+  Users,
+  Palette
 } from 'lucide-react';
 
 const MainAppContent: React.FC = () => {
@@ -143,6 +145,19 @@ const MainAppContent: React.FC = () => {
               </button>
 
               <button
+                onClick={() => setMerchantTab('marketing')}
+                className={`px-3 py-1.5 rounded-xl font-bold transition-colors flex items-center gap-1.5 ${
+                  merchantTab === 'marketing' ? 'bg-amber-400 text-slate-950 shadow-xs' : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                <Palette className="w-3.5 h-3.5" />
+                <span>Marketing & Banners</span>
+                <span className="bg-amber-500 text-slate-950 text-[10px] font-black px-1.5 py-0.2 rounded-full">
+                  Exclusivo
+                </span>
+              </button>
+
+              <button
                 onClick={() => setMerchantTab('promos')}
                 className={`px-3 py-1.5 rounded-xl font-bold transition-colors flex items-center gap-1.5 ${
                   merchantTab === 'promos' ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-300 hover:text-white'
@@ -230,6 +245,8 @@ const MainAppContent: React.FC = () => {
           /* Merchant Role */
           merchantTab === 'overview' ? (
             <MerchantDashboard onNavigateTab={setMerchantTab} onOpenManual={() => setIsManualOpen(true)} />
+          ) : merchantTab === 'marketing' ? (
+            <MerchantMarketingAgency />
           ) : merchantTab === 'kanban' ? (
             <OrdersKanban />
           ) : merchantTab === 'promos' ? (

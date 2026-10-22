@@ -88,6 +88,10 @@ export const MerchantLeadsManager: React.FC = () => {
             <span className="text-xs text-emerald-400 font-bold">
               Fase 1 ➔ Fase 2 Onboarding
             </span>
+            <span className="text-[11px] text-slate-300 bg-slate-800/80 px-2.5 py-0.5 rounded-full border border-slate-700 font-mono flex items-center gap-1">
+              <Mail className="w-3 h-3 text-emerald-400" />
+              arlenreali369@gmail.com
+            </span>
           </div>
           <h2 className="text-xl sm:text-2xl font-black">
             Lojistas Cadastrados no Portal (Fase 1)

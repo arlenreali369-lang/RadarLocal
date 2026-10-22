@@ -21,7 +21,9 @@ import {
   ChevronDown,
   Users,
   MessageCircle,
-  Share2
+  Share2,
+  Megaphone,
+  Palette
 } from 'lucide-react';
 
 interface MerchantDashboardProps {
@@ -41,8 +43,18 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onNavigate
     sendMatchPush,
     openMerchantOnboarding,
     merchantLeads,
-    openMerchantShowroom
+    openMerchantShowroom,
+    marketingAdvisor,
+    merchantSubscriptions,
+    marketingPackages,
+    adBanners,
+    artRequests
   } = useApp();
+
+  const currentPkgId = merchantSubscriptions[activeMerchant.id] || 'pkg-adesao';
+  const currentPkg = marketingPackages.find(p => p.id === currentPkgId) || marketingPackages[0];
+  const activeStoreBanners = adBanners.filter(b => b.merchantId === activeMerchant.id && b.active);
+  const storeArtRequests = artRequests.filter(r => r.merchantId === activeMerchant.id);
 
   const pendingCount = orders.filter(o => o.status === 'pending').length;
   const preparingCount = orders.filter(o => o.status === 'preparing').length;
@@ -168,6 +180,59 @@ export const MerchantDashboard: React.FC<MerchantDashboardProps> = ({ onNavigate
           </button>
         </div>
       )}
+
+      {/* Marketing Digital & Equipe Publicitária Radar Local (Diferencial) */}
+      <div className="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 rounded-3xl p-5 sm:p-6 text-white border border-indigo-800/40 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-5">
+        <div className="flex items-start gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-amber-400 text-slate-950 flex items-center justify-center shrink-0 font-black shadow-md shadow-amber-400/20">
+            <Sparkles className="w-6 h-6 fill-slate-950" />
+          </div>
+          <div className="space-y-1">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[10px] font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950">
+                Diferencial Radar Local
+              </span>
+              <span className="text-xs font-bold text-emerald-400 bg-emerald-950/70 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+                ● Plano {currentPkg.name} Ativo
+              </span>
+              <span className="text-xs text-indigo-200">
+                • {activeStoreBanners.length} banners no app
+              </span>
+            </div>
+            <h3 className="text-base sm:text-lg font-black text-white leading-tight">
+              Sua Loja com Equipe de Marketing Digital & Assessoria no WhatsApp
+            </h3>
+            <p className="text-xs text-slate-300 max-w-2xl leading-relaxed">
+              Nossa equipe cria suas imagens promocionais de alto padrão, posiciona seus banners no topo do app e orienta horários de pico pelo WhatsApp da assessora <strong>{marketingAdvisor.name}</strong>.
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+          <button
+            onClick={() => onNavigateTab('marketing')}
+            className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+          >
+            <Palette className="w-4 h-4 text-slate-950" />
+            <span>Gerenciar Marketing & Banners</span>
+          </button>
+
+          <button
+            onClick={() => {
+              const cleanNumber = marketingAdvisor.whatsappNumber.replace(/\D/g, '');
+              const msg = encodeURIComponent(
+                `Olá ${marketingAdvisor.name}! Sou da loja ${activeMerchant.name} em João Neiva e gostaria de solicitar uma nova imagem publicitária.`
+              );
+              window.open(`https://wa.me/${cleanNumber}?text=${msg}`, '_blank');
+            }}
+            className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-bold text-xs border border-white/20 transition-all flex items-center gap-1.5"
+            title="Chamar assessora no WhatsApp"
+          >
+            <MessageCircle className="w-4 h-4 text-emerald-400" />
+            <span>Chamar no WhatsApp</span>
+          </button>
+        </div>
+      </div>
 
       {/* Merchant Leads (Fase 1) Admin Pipeline Card */}
       <div className="bg-gradient-to-r from-amber-500/10 via-orange-500/10 to-amber-500/5 rounded-3xl p-5 border border-amber-300/80 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">

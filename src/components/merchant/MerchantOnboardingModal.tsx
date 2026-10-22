@@ -853,6 +853,13 @@ export const MerchantOnboardingModal: React.FC = () => {
                   <span className="text-xs text-slate-500">Produtos Iniciais Ativos:</span>
                   <span className="text-xs font-bold text-slate-800">{starterProducts.length} itens cadastrados</span>
                 </div>
+                <div className="flex items-center justify-between border-b border-slate-200 pb-2">
+                  <span className="text-xs text-slate-500">Notificação à Coordenação:</span>
+                  <span className="text-xs font-bold text-emerald-700 flex items-center gap-1 font-mono">
+                    <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
+                    arlenreali369@gmail.com
+                  </span>
+                </div>
                 <div className="flex items-center justify-between">
                   <span className="text-xs text-slate-500">Manual de Operação:</span>
                   <span className="text-xs font-bold text-emerald-600 flex items-center gap-1">

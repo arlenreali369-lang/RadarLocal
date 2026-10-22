@@ -278,3 +278,67 @@ export interface MerchantLead {
   contactedAt?: string;
 }
 
+export interface MarketingPackage {
+  id: string;
+  name: string;
+  tier: 'bronze' | 'silver' | 'gold';
+  priceMonthly: number;
+  originalPriceMonthly?: number;
+  highlightBadge?: string;
+  isPopular?: boolean;
+  tagline: string;
+  bannerSlotsCount: number;
+  customArtsCount: number;
+  pushCampaignsCount: number;
+  whatsAppSupportTier: string;
+  description: string;
+  features: string[];
+}
+
+export interface AdBanner {
+  id: string;
+  merchantId: string;
+  merchantName: string;
+  title: string;
+  subtitle: string;
+  imageUrl: string;
+  targetCategory: string;
+  planTier: 'bronze' | 'silver' | 'gold';
+  active: boolean;
+  clicksCount: number;
+  viewsCount: number;
+  badgeLabel: string;
+  actionText: string;
+  callToActionKind: 'open_store' | 'whatsapp' | 'view_deals';
+  whatsappNumber?: string;
+  discountHighlight?: string;
+  createdAt: string;
+}
+
+export interface ArtCreationRequest {
+  id: string;
+  merchantId: string;
+  merchantName: string;
+  requestType: 'app_banner' | 'whatsapp_flyer' | 'promo_card' | 'social_post';
+  title: string;
+  productOrOffer: string;
+  regularPrice?: string;
+  offerPrice?: string;
+  instructions: string;
+  status: 'briefing_sent' | 'in_design' | 'ready_for_review' | 'published_in_app';
+  createdAt: string;
+  estimatedDeliveryHours: number;
+  artPreviewUrl?: string;
+  designerNotes?: string;
+}
+
+export interface MarketingAdvisor {
+  name: string;
+  role: string;
+  whatsappNumber: string;
+  whatsappFormatted: string;
+  avatarUrl: string;
+  statusText: string;
+  specialty: string;
+}
+

@@ -19,7 +19,11 @@ import {
   NeighborhoodFee,
   CityInfo,
   MerchantLead,
-  CustomerProfile
+  CustomerProfile,
+  MarketingPackage,
+  AdBanner,
+  ArtCreationRequest,
+  MarketingAdvisor
 } from '../types';
 import {
   CURRENT_CITY,
@@ -36,9 +40,14 @@ import {
   MOCK_LOYALTY_MISSIONS,
   MOCK_LOYALTY_BADGES,
   MOCK_MERCHANT_LEADS,
-  ADMIN_APP_INFO
+  ADMIN_APP_INFO,
+  MARKETING_PACKAGES,
+  DEFAULT_MARKETING_ADVISOR,
+  INITIAL_AD_BANNERS,
+  INITIAL_ART_REQUESTS
 } from '../data/mockData';
 import { sounds } from '../utils/audio';
+import { sendMerchantRegistrationEmail } from '../utils/merchantNotification';
 
 interface AppContextType {
   userRole: UserRole;
@@ -157,6 +166,20 @@ interface AppContextType {
   setIsRegistrationSuccessModalOpen: (open: boolean) => void;
   triggerInstantPromoDemo: () => void;
   logoutCustomer: () => void;
+
+  // Marketing Digital & Equipe Publicitária Radar Local (Diferencial Lojista)
+  marketingPackages: MarketingPackage[];
+  adBanners: AdBanner[];
+  artRequests: ArtCreationRequest[];
+  marketingAdvisor: MarketingAdvisor;
+  merchantSubscriptions: { [merchantId: string]: string };
+  subscribeToMarketingPackage: (merchantId: string, packageId: string) => void;
+  cancelMarketingSubscription: (merchantId: string) => void;
+  createArtRequest: (request: Omit<ArtCreationRequest, 'id' | 'createdAt' | 'status'>) => ArtCreationRequest;
+  recordBannerClick: (bannerId: string) => void;
+  recordBannerView: (bannerId: string) => void;
+  toggleBannerStatus: (bannerId: string) => void;
+  publishArtRequestAsBanner: (requestId: string) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -319,6 +342,44 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   const [isRegistrationSuccessModalOpen, setIsRegistrationSuccessModalOpen] = useState<boolean>(false);
   const [lastRegisteredInstantNotifs, setLastRegisteredInstantNotifs] = useState<MatchPushNotification[]>([]);
 
+  // Marketing Digital & Equipe Publicitária Radar Local (Diferencial Lojista)
+  const [adBanners, setAdBanners] = useState<AdBanner[]>(() => {
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_KEY}_ad_banners`);
+      return saved ? JSON.parse(saved) : INITIAL_AD_BANNERS;
+    } catch {
+      return INITIAL_AD_BANNERS;
+    }
+  });
+
+  const [artRequests, setArtRequests] = useState<ArtCreationRequest[]>(() => {
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_KEY}_art_requests`);
+      return saved ? JSON.parse(saved) : INITIAL_ART_REQUESTS;
+    } catch {
+      return INITIAL_ART_REQUESTS;
+    }
+  });
+
+  const [merchantSubscriptions, setMerchantSubscriptions] = useState<{ [merchantId: string]: string }>(() => {
+    try {
+      const saved = localStorage.getItem(`${LOCAL_STORAGE_KEY}_merchant_subs`);
+      return saved ? JSON.parse(saved) : {
+        'loja-padaria': 'pkg-prata',
+        'loja-pizzaria': 'pkg-ouro',
+        'serv-eletrica': 'pkg-prata',
+        'loja-mercado': 'pkg-bronze'
+      };
+    } catch {
+      return {
+        'loja-padaria': 'pkg-prata',
+        'loja-pizzaria': 'pkg-ouro',
+        'serv-eletrica': 'pkg-prata',
+        'loja-mercado': 'pkg-bronze'
+      };
+    }
+  });
+
   // Persist locally for offline capability
   useEffect(() => {
     try {
@@ -329,6 +390,9 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       localStorage.setItem(`${LOCAL_STORAGE_KEY}_merchants`, JSON.stringify(merchants));
       localStorage.setItem(`${LOCAL_STORAGE_KEY}_active_merchant`, activeMerchantId);
       localStorage.setItem(`${LOCAL_STORAGE_KEY}_merchant_leads`, JSON.stringify(merchantLeads));
+      localStorage.setItem(`${LOCAL_STORAGE_KEY}_ad_banners`, JSON.stringify(adBanners));
+      localStorage.setItem(`${LOCAL_STORAGE_KEY}_art_requests`, JSON.stringify(artRequests));
+      localStorage.setItem(`${LOCAL_STORAGE_KEY}_merchant_subs`, JSON.stringify(merchantSubscriptions));
       if (customerProfile) {
         localStorage.setItem(`${LOCAL_STORAGE_KEY}_customer_profile`, JSON.stringify(customerProfile));
       } else {
@@ -336,7 +400,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       }
       setLastSyncTime(new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }));
     } catch {}
-  }, [orders, loyaltyProfile, notifications, chatMessages, merchants, activeMerchantId, merchantLeads, customerProfile]);
+  }, [orders, loyaltyProfile, notifications, chatMessages, merchants, activeMerchantId, merchantLeads, customerProfile, adBanners, artRequests, merchantSubscriptions]);
 
   // Network offline listener
   useEffect(() => {
@@ -1006,6 +1070,17 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
       relatedMerchantId: newId
     });
 
+    // Notify Administrator at arlenreali369@gmail.com
+    sendMerchantRegistrationEmail({
+      ownerName: newMerchant.ownerName || newMerchant.name,
+      phone: newMerchant.phone,
+      storeName: newMerchant.name,
+      neighborhood: newMerchant.neighborhood,
+      businessType: newMerchant.category,
+      email: newMerchant.email,
+      planName: 'Adesão Promocional - R$ 42,00/mês'
+    });
+
     sounds.playCoinReward();
     return newMerchant;
   };
@@ -1019,12 +1094,26 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     };
     setMerchantLeads(prev => [newLead, ...prev]);
 
-    // Send high-priority alert to Admin
+    // Send automated email notification to arlenreali369@gmail.com with Name, WhatsApp and Store info
+    sendMerchantRegistrationEmail({
+      ownerName: newLead.ownerName,
+      phone: newLead.phone,
+      storeName: newLead.storeName,
+      neighborhood: newLead.neighborhood,
+      businessType: newLead.businessType,
+      email: newLead.email,
+      deliveryType: newLead.deliveryType,
+      primaryProducts: newLead.primaryProducts,
+      preferredContactTime: newLead.preferredContactTime,
+      planName: 'Adesão Promocional - R$ 42,00/mês'
+    });
+
+    // Send high-priority alert to Admin Dashboard
     sendMatchPush({
       targetRole: 'merchant',
       type: 'system',
       title: '📋 Novo Lojista Cadastrado (Fase 1)!',
-      message: `${newLead.storeName} (${newLead.ownerName}) de João Neiva cadastrou-se no portal. Chame no WhatsApp para iniciar a Fase 2!`,
+      message: `${newLead.storeName} (${newLead.ownerName} - WhatsApp ${newLead.phone}) cadastrou-se no portal! Dados enviados para arlenreali369@gmail.com.`,
       priority: 'high'
     });
 
@@ -1283,6 +1372,128 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
     localStorage.removeItem(`${LOCAL_STORAGE_KEY}_customer_profile`);
   };
 
+  // Marketing Digital & Equipe Publicitária Radar Local methods
+  const subscribeToMarketingPackage = (merchantId: string, packageId: string) => {
+    const pkg = MARKETING_PACKAGES.find(p => p.id === packageId) || MARKETING_PACKAGES[1];
+    setMerchantSubscriptions(prev => ({
+      ...prev,
+      [merchantId]: packageId
+    }));
+
+    const merchantObj = merchants.find(m => m.id === merchantId) || activeMerchant;
+
+    const notif: MatchPushNotification = {
+      id: `push-mkt-${Date.now()}`,
+      targetRole: 'merchant',
+      type: 'system',
+      title: `✨ Pacote ${pkg.name} Ativado com Sucesso!`,
+      message: `Sua loja (${merchantObj.name}) agora tem acesso à Equipe de Marketing Digital Radar Local. A assessora ${DEFAULT_MARKETING_ADVISOR.name} atenderá você no WhatsApp ${DEFAULT_MARKETING_ADVISOR.whatsappFormatted} para criar suas artes e posicionar seus banners.`,
+      timestamp: 'Agora mesmo',
+      read: false,
+      priority: 'high',
+      relatedMerchantId: merchantId,
+      notificationKind: 'welcome'
+    };
+
+    setNotifications(prev => [notif, ...prev]);
+    setActiveToast(notif);
+    sounds.playSuccess();
+  };
+
+  const cancelMarketingSubscription = (merchantId: string) => {
+    setMerchantSubscriptions(prev => {
+      const copy = { ...prev };
+      delete copy[merchantId];
+      return copy;
+    });
+  };
+
+  const createArtRequest = (requestData: Omit<ArtCreationRequest, 'id' | 'createdAt' | 'status'>): ArtCreationRequest => {
+    const newRequest: ArtCreationRequest = {
+      ...requestData,
+      id: `req-art-${Date.now()}`,
+      status: 'briefing_sent',
+      createdAt: new Date().toISOString()
+    };
+
+    setArtRequests(prev => [newRequest, ...prev]);
+
+    const notif: MatchPushNotification = {
+      id: `push-art-${Date.now()}`,
+      targetRole: 'merchant',
+      type: 'system',
+      title: '🎨 Solicitação de Arte Recebida pela Equipe!',
+      message: `Recebemos o briefing de "${newRequest.title}". A equipe de criação do Radar Local já iniciou o trabalho de design publicitário!`,
+      timestamp: 'Agora mesmo',
+      read: false,
+      priority: 'high',
+      relatedMerchantId: requestData.merchantId,
+      notificationKind: 'store_promo'
+    };
+
+    setNotifications(prev => [notif, ...prev]);
+    setActiveToast(notif);
+    sounds.playMatchPush();
+
+    return newRequest;
+  };
+
+  const recordBannerClick = (bannerId: string) => {
+    setAdBanners(prev => prev.map(b => b.id === bannerId ? { ...b, clicksCount: b.clicksCount + 1 } : b));
+  };
+
+  const recordBannerView = (bannerId: string) => {
+    setAdBanners(prev => prev.map(b => b.id === bannerId ? { ...b, viewsCount: b.viewsCount + 1 } : b));
+  };
+
+  const toggleBannerStatus = (bannerId: string) => {
+    setAdBanners(prev => prev.map(b => b.id === bannerId ? { ...b, active: !b.active } : b));
+  };
+
+  const publishArtRequestAsBanner = (requestId: string) => {
+    const req = artRequests.find(r => r.id === requestId);
+    if (!req) return;
+
+    setArtRequests(prev => prev.map(r => r.id === requestId ? { ...r, status: 'published_in_app' as const } : r));
+
+    const newBanner: AdBanner = {
+      id: `banner-${Date.now()}`,
+      merchantId: req.merchantId,
+      merchantName: req.merchantName,
+      title: req.title,
+      subtitle: req.productOrOffer + (req.offerPrice ? ` por apenas ${req.offerPrice}` : ''),
+      imageUrl: req.artPreviewUrl || 'https://images.unsplash.com/photo-1509440159596-0249088772ff?w=1000&auto=format&fit=crop&q=80',
+      targetCategory: 'Destaques',
+      planTier: 'silver',
+      active: true,
+      clicksCount: 0,
+      viewsCount: 1,
+      badgeLabel: 'Publicidade Radar Local',
+      actionText: 'Ver na Loja',
+      callToActionKind: 'open_store',
+      discountHighlight: req.offerPrice ? `Oferta ${req.offerPrice}` : 'Super Destaque',
+      createdAt: new Date().toISOString()
+    };
+
+    setAdBanners(prev => [newBanner, ...prev]);
+
+    const notif: MatchPushNotification = {
+      id: `push-pub-${Date.now()}`,
+      targetRole: 'both',
+      type: 'flash_deal',
+      title: `📣 Novo Banner Publicitário no Radar: ${req.merchantName}`,
+      message: `A nova arte publicitária de "${req.title}" já está em veiculação no topo do aplicativo de João Neiva!`,
+      timestamp: 'Agora mesmo',
+      read: false,
+      priority: 'high',
+      relatedMerchantId: req.merchantId,
+      notificationKind: 'store_promo'
+    };
+    setNotifications(prev => [notif, ...prev]);
+    setActiveToast(notif);
+    sounds.playMatchPush();
+  };
+
   return (
     <AppContext.Provider
       value={{
@@ -1385,7 +1596,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
         isRegistrationSuccessModalOpen,
         setIsRegistrationSuccessModalOpen,
         triggerInstantPromoDemo,
-        logoutCustomer
+        logoutCustomer,
+
+        // Marketing Digital & Equipe Publicitária Radar Local (Diferencial Lojista)
+        marketingPackages: MARKETING_PACKAGES,
+        adBanners,
+        artRequests,
+        marketingAdvisor: DEFAULT_MARKETING_ADVISOR,
+        merchantSubscriptions,
+        subscribeToMarketingPackage,
+        cancelMarketingSubscription,
+        createArtRequest,
+        recordBannerClick,
+        recordBannerView,
+        toggleBannerStatus,
+        publishArtRequestAsBanner
       }}
     >
       {children}
