@@ -13,16 +13,23 @@ import {
   Sparkles,
   MessageCircle,
   Zap,
-  ShieldCheck
+  ShieldCheck,
+  FlaskConical
 } from 'lucide-react';
 
 interface HeaderProps {
   onOpenLoyalty: () => void;
   onOpenOrders: () => void;
   onOpenManual: () => void;
+  onOpenTestAssistant?: () => void;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenLoyalty, onOpenOrders, onOpenManual }) => {
+export const Header: React.FC<HeaderProps> = ({
+  onOpenLoyalty,
+  onOpenOrders,
+  onOpenManual,
+  onOpenTestAssistant
+}) => {
   const {
     userRole,
     setUserRole,
@@ -261,6 +268,18 @@ export const Header: React.FC<HeaderProps> = ({ onOpenLoyalty, onOpenOrders, onO
             <span className="hidden xs:inline">Portal do Lojista</span>
             <span className="xs:hidden">Lojista</span>
           </button>
+
+          {/* Button: Teste de Cadastro de Vendedor */}
+          {onOpenTestAssistant && (
+            <button
+              onClick={onOpenTestAssistant}
+              className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-950 border border-indigo-200/90 font-extrabold text-xs shadow-2xs transition-all active:scale-95"
+              title="Abrir Simulador e Teste do Cadastro de Vendedor"
+            >
+              <FlaskConical className="w-3.5 h-3.5 text-indigo-600" />
+              <span>Testar Vendedor</span>
+            </button>
+          )}
 
           {/* ROLE SWITCHER PILL */}
           <div className="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80">

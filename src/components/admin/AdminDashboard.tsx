@@ -29,7 +29,12 @@ import {
   ChevronRight,
   UserCheck
 } from 'lucide-react';
-import { ADMIN_EMAIL_RECIPIENT, sendMerchantRegistrationEmail } from '../../utils/merchantNotification';
+import {
+  ADMIN_EMAIL_RECIPIENT,
+  sendMerchantRegistrationEmail,
+  getEmailDispatchLogs,
+  EmailDispatchLog
+} from '../../utils/merchantNotification';
 
 export const AdminDashboard: React.FC = () => {
   const {
@@ -42,7 +47,8 @@ export const AdminDashboard: React.FC = () => {
     marketingAdvisor,
     setUserRole,
     openMerchantShowroom,
-    sendMatchPush
+    sendMatchPush,
+    registerMerchant
   } = useApp();
 
   // Navigation tab inside Admin Dashboard
@@ -116,6 +122,38 @@ export const AdminDashboard: React.FC = () => {
     });
     setTestEmailStatus(result.message);
     setTimeout(() => setTestEmailStatus(null), 6000);
+  };
+
+  const handleActivateLeadAsStore = (lead: MerchantLead) => {
+    const isService = lead.businessType.toLowerCase().includes('serviço') || lead.businessType.toLowerCase().includes('servico');
+    registerMerchant(
+      {
+        name: lead.storeName,
+        ownerName: lead.ownerName,
+        phone: lead.phone,
+        email: lead.email,
+        category: isService ? 'Serviços & Manutenção' : 'Mercearias & Mercados',
+        neighborhood: lead.neighborhood,
+        description: `Estabelecimento homologado e ativado pela administração em ${city.name}.`,
+        isOpen: true,
+        acceptsPix: true
+      },
+      [
+        {
+          name: isService ? 'Serviço Padrão (Visita/Orçamento)' : 'Produto Principal do Estabelecimento',
+          price: isService ? 45.0 : 16.5,
+          description: 'Item de teste cadastrado durante homologação do vendedor no Radar Local.'
+        },
+        {
+          name: isService ? 'Serviço Especial / Manutenção' : 'Produto Promocional do Bairro',
+          price: isService ? 95.0 : 25.0,
+          description: 'Item configurado com pontuação dobrada no Clube de Fidelidade.'
+        }
+      ]
+    );
+
+    updateLeadStatus(lead.id, 'active', 'Loja ativada e publicada no catálogo de João Neiva pelo administrador.');
+    alert(`Loja "${lead.storeName}" ativada com sucesso! Agora ela já aparece no catálogo de João Neiva.`);
   };
 
   return (
@@ -495,15 +533,26 @@ export const AdminDashboard: React.FC = () => {
                       </div>
                     </div>
 
-                    {/* Bottom Commercial WhatsApp CTA Button */}
-                    <div className="pt-2 border-t border-slate-100 flex items-center gap-2">
+                    {/* Bottom Commercial Actions: WhatsApp & Activate */}
+                    <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-2">
                       <button
                         onClick={() => handleOpenCommercialWhatsApp(lead)}
-                        className="w-full py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                        className="w-full sm:flex-1 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer active:scale-95"
                       >
                         <MessageCircle className="w-4 h-4 fill-slate-950" />
                         <span>Chamar {lead.ownerName.split(' ')[0]} no WhatsApp</span>
                       </button>
+
+                      {lead.status !== 'active' && (
+                        <button
+                          onClick={() => handleActivateLeadAsStore(lead)}
+                          className="w-full sm:w-auto px-3.5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                          title="Homologar e colocar produtos da loja no ar no app"
+                        >
+                          <Store className="w-3.5 h-3.5 text-indigo-200" />
+                          <span>Ativar Loja no App</span>
+                        </button>
+                      )}
                     </div>
                   </div>
                 );
@@ -700,6 +749,52 @@ export const AdminDashboard: React.FC = () => {
               <span className="text-xs font-bold text-emerald-700 bg-emerald-50 px-3 py-1.5 rounded-xl border border-emerald-200">
                 {testEmailStatus}
               </span>
+            )}
+          </div>
+
+          {/* Live Dispatch Logs Table */}
+          <div className="pt-4 border-t border-slate-200 space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="font-black text-slate-800 text-sm flex items-center gap-2">
+                <Mail className="w-4 h-4 text-indigo-600" />
+                <span>Histórico de Notificações Transmitidas ({getEmailDispatchLogs().length})</span>
+              </h4>
+              <span className="text-[11px] text-slate-500 font-mono">Destino: {ADMIN_EMAIL_RECIPIENT}</span>
+            </div>
+
+            {getEmailDispatchLogs().length === 0 ? (
+              <p className="text-xs text-slate-400 italic p-4 bg-slate-50 rounded-2xl border border-slate-100 text-center">
+                Nenhum e-mail registrado nesta sessão do navegador ainda. Faça um teste de cadastro no topo do app para ver os dados aparecendo aqui!
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {getEmailDispatchLogs().map(log => (
+                  <div
+                    key={log.id}
+                    className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <strong className="text-slate-900 font-black">{log.payload.storeName}</strong>
+                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-800">
+                          {log.payload.businessType}
+                        </span>
+                      </div>
+                      <div className="text-slate-500 text-[11px] mt-0.5">
+                        Responsável: <strong>{log.payload.ownerName}</strong> • WhatsApp: <strong className="text-emerald-700 font-mono">{log.payload.phone}</strong> • Bairro: {log.payload.neighborhood}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-[11px]">
+                      <span className="font-mono text-slate-400">{log.timestamp}</span>
+                      <span className="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3 text-emerald-600" />
+                        Disparado
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
           </div>
         </div>

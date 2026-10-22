@@ -18,7 +18,8 @@ import {
   Zap,
   HelpCircle,
   Building2,
-  Mail
+  Mail,
+  FlaskConical
 } from 'lucide-react';
 import { ADMIN_EMAIL_RECIPIENT } from '../../utils/merchantNotification';
 
@@ -28,7 +29,8 @@ export const MerchantInvitationHero: React.FC = () => {
     registerMerchantLead,
     adminWhatsAppFormatted,
     openMerchantShowroom,
-    setUserRole
+    setUserRole,
+    registerMerchant
   } = useApp();
 
   // Form states
@@ -42,6 +44,10 @@ export const MerchantInvitationHero: React.FC = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [lastRegisteredPhone, setLastRegisteredPhone] = useState('');
   const [lastRegisteredName, setLastRegisteredName] = useState('');
+  const [lastRegisteredStore, setLastRegisteredStore] = useState('');
+  const [lastRegisteredNeighborhood, setLastRegisteredNeighborhood] = useState('');
+  const [lastRegisteredType, setLastRegisteredType] = useState('');
+  const [isStoreActivated, setIsStoreActivated] = useState(false);
 
   const formatPhoneNumber = (value: string) => {
     const numbers = value.replace(/\D/g, '');
@@ -53,6 +59,22 @@ export const MerchantInvitationHero: React.FC = () => {
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setPhone(formatPhoneNumber(e.target.value));
+  };
+
+  const handleApplyPreset = (preset: {
+    ownerName: string;
+    phone: string;
+    storeName: string;
+    businessType: 'comercio' | 'servico';
+    category: string;
+    neighborhood: string;
+  }) => {
+    setOwnerName(preset.ownerName);
+    setPhone(preset.phone);
+    setStoreName(preset.storeName);
+    setBusinessType(preset.businessType);
+    setCategory(preset.category);
+    setNeighborhood(preset.neighborhood);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -97,6 +119,10 @@ export const MerchantInvitationHero: React.FC = () => {
 
     setLastRegisteredName(ownerName.trim());
     setLastRegisteredPhone(phone.trim());
+    setLastRegisteredStore(generatedStoreName);
+    setLastRegisteredNeighborhood(neighborhood || 'Centro');
+    setLastRegisteredType(businessType === 'servico' ? 'Prestação de Serviços' : 'Comércio Local');
+    setIsStoreActivated(false);
     setIsSubmitted(true);
     setIsSubmitting(false);
 
@@ -104,6 +130,43 @@ export const MerchantInvitationHero: React.FC = () => {
     setOwnerName('');
     setPhone('');
     setStoreName('');
+  };
+
+  const handleActivateStoreNow = () => {
+    const isService = lastRegisteredType.includes('Serviço');
+    registerMerchant(
+      {
+        name: lastRegisteredStore,
+        ownerName: lastRegisteredName,
+        phone: lastRegisteredPhone,
+        category: isService ? 'Serviços & Manutenção' : 'Mercearias & Mercados',
+        neighborhood: lastRegisteredNeighborhood,
+        description: `Estabelecimento cadastrado via Teste de Vendedor no Radar Local de ${city.name}.`,
+        isOpen: true,
+        acceptsPix: true
+      },
+      [
+        {
+          name: isService ? 'Serviço Padrão (Visita/Orçamento)' : 'Produto Destaque 01',
+          price: isService ? 50.0 : 15.0,
+          description: 'Item de demonstração para testar fluxo de pedidos no app.'
+        },
+        {
+          name: isService ? 'Manutenção Completa' : 'Produto Especial 02',
+          price: isService ? 120.0 : 28.5,
+          description: 'Item secundário para validação do carrinho e acúmulo de pontos.'
+        }
+      ]
+    );
+
+    setIsStoreActivated(true);
+    try {
+      confetti({
+        particleCount: 70,
+        spread: 70,
+        origin: { y: 0.4 }
+      });
+    } catch {}
   };
 
   const openWhatsAppWithAgent = () => {
@@ -202,56 +265,184 @@ export const MerchantInvitationHero: React.FC = () => {
                 Participe do Programa: Deixe seu Nome e WhatsApp
               </h3>
             </div>
-            <span className="text-xs text-slate-300">
-              ⚡ Cadastro em menos de 1 minuto
-            </span>
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-mono text-emerald-400 bg-emerald-950/80 px-2 py-0.5 rounded border border-emerald-500/40">
+                Adesão: R$ 42,00/mês
+              </span>
+              <span className="text-xs text-slate-300 hidden sm:inline">
+                ⚡ Notificação: {ADMIN_EMAIL_RECIPIENT}
+              </span>
+            </div>
           </div>
 
           {isSubmitted ? (
-            /* Success confirmation card */
-            <div className="py-6 text-center space-y-4 animate-in zoom-in-95">
+            /* Rich Test Confirmation & Next Steps Card */
+            <div className="py-5 space-y-4 animate-in zoom-in-95">
               <div className="w-14 h-14 rounded-full bg-emerald-500 text-slate-950 flex items-center justify-center mx-auto font-black shadow-lg shadow-emerald-500/30">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
 
-              <div className="space-y-1.5 max-w-lg mx-auto">
+              <div className="text-center space-y-1.5 max-w-xl mx-auto">
+                <span className="text-[10px] font-black uppercase tracking-widest text-emerald-400 bg-emerald-950/80 px-2.5 py-0.5 rounded-full border border-emerald-500/30">
+                  Teste de Cadastro Concluído com Sucesso
+                </span>
                 <h4 className="text-xl font-black text-white">
                   Muito obrigado, {lastRegisteredName}!
                 </h4>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  Suas informações foram registradas com sucesso e enviadas para nossa coordenação.
+                <p className="text-xs text-slate-200 leading-relaxed">
+                  As informações do estabelecimento foram gravadas no sistema e transmitidas automaticamente.
                 </p>
-                <div className="p-3 bg-emerald-950/70 border border-emerald-500/40 rounded-xl text-xs text-emerald-200 space-y-1">
-                  <p className="font-bold flex items-center justify-center gap-1.5">
-                    <Clock className="w-4 h-4 text-emerald-400" />
-                    <span>Fique atento ao seu WhatsApp: <strong>{lastRegisteredPhone}</strong></span>
-                  </p>
-                  <p className="text-[11px] text-emerald-300/90">
-                    Um de nossos agentes comerciais entrará em contato com você para apresentar a plataforma e alinhar sua estreia no Radar Local!
-                  </p>
+              </div>
+
+              {/* Data Summary Box */}
+              <div className="p-4 rounded-2xl bg-white/5 border border-white/15 max-w-lg mx-auto text-xs space-y-2">
+                <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                  <span className="text-slate-400">Estabelecimento:</span>
+                  <strong className="text-white font-black">{lastRegisteredStore}</strong>
+                </div>
+                <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                  <span className="text-slate-400">Responsável:</span>
+                  <span className="text-white font-bold">{lastRegisteredName}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                  <span className="text-slate-400">WhatsApp:</span>
+                  <strong className="text-emerald-400 font-mono font-black">{lastRegisteredPhone}</strong>
+                </div>
+                <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                  <span className="text-slate-400">Bairro:</span>
+                  <span className="text-slate-200 font-medium">{lastRegisteredNeighborhood}, {city.name}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-white/10 pb-1.5">
+                  <span className="text-slate-400">E-mail Notificado:</span>
+                  <span className="text-amber-300 font-mono text-[11px] font-bold">{ADMIN_EMAIL_RECIPIENT}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-slate-400">Status do Registro:</span>
+                  <span className="text-[10px] font-black uppercase text-amber-300 bg-amber-950/60 border border-amber-400/40 px-2 py-0.5 rounded-full">
+                    Aguardando Contato do Agente
+                  </span>
                 </div>
               </div>
 
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+              {/* Notice of Agent WhatsApp Contact */}
+              <div className="p-3 bg-emerald-950/70 border border-emerald-500/40 rounded-xl text-xs text-emerald-200 max-w-lg mx-auto space-y-1 text-center">
+                <p className="font-bold flex items-center justify-center gap-1.5">
+                  <Clock className="w-4 h-4 text-emerald-400" />
+                  <span>Aviso ao Lojista: Fique atento ao WhatsApp <strong>{lastRegisteredPhone}</strong></span>
+                </p>
+                <p className="text-[11px] text-emerald-300/90">
+                  Um de nossos agentes comerciais entrará em contato para apresentar a plataforma e alinhar sua vitrine!
+                </p>
+              </div>
+
+              {/* Store activation confirmation notice if clicked */}
+              {isStoreActivated && (
+                <div className="p-3 bg-amber-400/20 border border-amber-400/50 rounded-xl text-xs text-amber-200 max-w-lg mx-auto text-center font-bold">
+                  🎉 Loja ativada e publicada no catálogo de {city.name}! Role a página ou vá para o catálogo para ver os produtos.
+                </div>
+              )}
+
+              {/* Next Actions for Testing */}
+              <div className="flex flex-wrap items-center justify-center gap-2.5 pt-2 max-w-xl mx-auto">
                 <button
-                  onClick={openWhatsAppWithAgent}
-                  className="w-full sm:w-auto px-5 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-95"
+                  onClick={() => setUserRole('admin')}
+                  className="px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  <MessageCircle className="w-4 h-4 fill-slate-950" />
-                  <span>Falar com Agente Comercial Agora no WhatsApp</span>
+                  <ShieldCheck className="w-4 h-4" />
+                  <span>1. Ver Lead na Área do Administrador</span>
                 </button>
 
                 <button
-                  onClick={() => setIsSubmitted(false)}
-                  className="w-full sm:w-auto px-4 py-3 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors"
+                  onClick={openWhatsAppWithAgent}
+                  className="px-4 py-2.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
                 >
-                  Cadastrar Outro Negócio
+                  <MessageCircle className="w-4 h-4 fill-slate-950" />
+                  <span>2. Testar Contato via WhatsApp</span>
+                </button>
+
+                {!isStoreActivated && (
+                  <button
+                    onClick={handleActivateStoreNow}
+                    className="px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 font-black text-xs shadow-md transition-all flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Store className="w-4 h-4" />
+                    <span>3. Ativar Loja na Vitrine Agora</span>
+                  </button>
+                )}
+
+                <button
+                  onClick={() => setIsSubmitted(false)}
+                  className="px-4 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold transition-colors"
+                >
+                  Cadastrar Outro Negócio de Teste
                 </button>
               </div>
             </div>
           ) : (
-            /* Lead Capture Form */
+            /* Lead Capture Form with Quick-Fill Test Presets */
             <form onSubmit={handleSubmit} className="space-y-4">
+              {/* Quick Fill Test Helper Bar */}
+              <div className="p-3 rounded-xl bg-white/5 border border-white/10 space-y-1.5">
+                <div className="flex items-center justify-between text-[11px]">
+                  <span className="font-bold text-amber-300 flex items-center gap-1">
+                    <FlaskConical className="w-3.5 h-3.5 text-amber-400" />
+                    <span>Preencher Dados de Teste em 1 Clique:</span>
+                  </span>
+                  <span className="text-slate-400 text-[10px]">Polo João Neiva</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleApplyPreset({
+                        ownerName: 'Carlos Eduardo Reali',
+                        phone: '(27) 99899-1530',
+                        storeName: 'Padaria & Confeitaria Central',
+                        businessType: 'comercio',
+                        category: 'Padarias & Cafés',
+                        neighborhood: 'Centro'
+                      })
+                    }
+                    className="px-2.5 py-1 rounded-lg bg-amber-400/20 hover:bg-amber-400/30 text-amber-200 border border-amber-400/30 text-[11px] font-bold transition-all flex items-center gap-1"
+                  >
+                    <span>🥖 Padaria Central</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleApplyPreset({
+                        ownerName: 'Marcos Silva',
+                        phone: '(27) 99755-1234',
+                        storeName: 'Silva Eletricista & Manutenção',
+                        businessType: 'servico',
+                        category: 'Serviços & Manutenção',
+                        neighborhood: 'Triunfo'
+                      })
+                    }
+                    className="px-2.5 py-1 rounded-lg bg-emerald-400/20 hover:bg-emerald-400/30 text-emerald-200 border border-emerald-400/30 text-[11px] font-bold transition-all flex items-center gap-1"
+                  >
+                    <span>🛠️ Silva Eletricista</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() =>
+                      handleApplyPreset({
+                        ownerName: 'Amanda Rocha',
+                        phone: '(27) 99654-7890',
+                        storeName: 'Pizzaria & Lanches do Vale',
+                        businessType: 'comercio',
+                        category: 'Lanches & Pizzas',
+                        neighborhood: 'Vila Nova'
+                      })
+                    }
+                    className="px-2.5 py-1 rounded-lg bg-orange-400/20 hover:bg-orange-400/30 text-orange-200 border border-orange-400/30 text-[11px] font-bold transition-all flex items-center gap-1"
+                  >
+                    <span>🍕 Pizzaria do Vale</span>
+                  </button>
+                </div>
+              </div>
               {/* Type Switcher: Comércio vs Prestador de Serviço */}
               <div>
                 <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-300 mb-1.5">

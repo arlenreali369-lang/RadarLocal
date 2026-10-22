@@ -28,6 +28,7 @@ import { MerchantShowroomLanding } from './components/merchant/MerchantShowroomL
 import { MerchantLeadsManager } from './components/merchant/MerchantLeadsManager';
 import { MerchantMarketingAgency } from './components/merchant/MerchantMarketingAgency';
 import { AdminDashboard } from './components/admin/AdminDashboard';
+import { VendorTestAssistantModal } from './components/common/VendorTestAssistantModal';
 
 import {
   LayoutDashboard,
@@ -59,6 +60,7 @@ const MainAppContent: React.FC = () => {
   const [customerTab, setCustomerTab] = useState<string>('home');
   const [merchantTab, setMerchantTab] = useState<string>('overview');
   const [isManualOpen, setIsManualOpen] = useState<boolean>(false);
+  const [isTestAssistantOpen, setIsTestAssistantOpen] = useState<boolean>(false);
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 flex flex-col font-sans pb-20 w-full max-w-full overflow-x-hidden">
@@ -70,6 +72,12 @@ const MainAppContent: React.FC = () => {
 
       {/* Notification Center Drawer */}
       <NotificationDrawer />
+
+      {/* Vendor Registration Testing Assistant Modal */}
+      <VendorTestAssistantModal
+        isOpen={isTestAssistantOpen}
+        onClose={() => setIsTestAssistantOpen(false)}
+      />
 
       {/* Merchant Development & Partner Cities Manual Modal */}
       <MerchantManualModal
@@ -103,6 +111,7 @@ const MainAppContent: React.FC = () => {
           setCustomerTab('orders');
         }}
         onOpenManual={() => setIsManualOpen(true)}
+        onOpenTestAssistant={() => setIsTestAssistantOpen(true)}
       />
 
       {/* Merchant Top Sub-navigation when in merchant role */}

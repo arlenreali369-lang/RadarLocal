@@ -17,6 +17,42 @@ export interface MerchantRegistrationNotificationPayload {
   registeredAt?: string;
 }
 
+export interface EmailDispatchLog {
+  id: string;
+  recipient: string;
+  subject: string;
+  payload: MerchantRegistrationNotificationPayload;
+  timestamp: string;
+  status: 'sent' | 'fallback';
+}
+
+const DISPATCH_LOG_STORAGE_KEY = 'radar_merchant_email_logs';
+
+export function getEmailDispatchLogs(): EmailDispatchLog[] {
+  try {
+    const raw = localStorage.getItem(DISPATCH_LOG_STORAGE_KEY);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function saveEmailDispatchLog(entry: EmailDispatchLog): void {
+  try {
+    const current = getEmailDispatchLogs();
+    const updated = [entry, ...current.slice(0, 19)];
+    localStorage.setItem(DISPATCH_LOG_STORAGE_KEY, JSON.stringify(updated));
+  } catch (err) {
+    console.error('Falha ao salvar log de e-mail:', err);
+  }
+}
+
+export function clearEmailDispatchLogs(): void {
+  try {
+    localStorage.removeItem(DISPATCH_LOG_STORAGE_KEY);
+  } catch {}
+}
+
 /**
  * Dispatches an automated email notification containing the new merchant's details
  * directly to the administrator email: arlenreali369@gmail.com
@@ -65,7 +101,17 @@ export async function sendMerchantRegistrationEmail(
       body: JSON.stringify(bodyData)
     });
 
-    if (response.ok) {
+    const isOk = response.ok;
+    saveEmailDispatchLog({
+      id: `log-${Date.now()}`,
+      recipient: ADMIN_EMAIL_RECIPIENT,
+      subject: emailSubject,
+      payload: data,
+      timestamp,
+      status: isOk ? 'sent' : 'fallback'
+    });
+
+    if (isOk) {
       console.log(`[Radar Local] Email enviado com sucesso para ${ADMIN_EMAIL_RECIPIENT}`);
       return {
         success: true,
@@ -80,6 +126,14 @@ export async function sendMerchantRegistrationEmail(
     }
   } catch (error) {
     console.error('[Radar Local] Erro ao enviar e-mail via fetch:', error);
+    saveEmailDispatchLog({
+      id: `log-${Date.now()}`,
+      recipient: ADMIN_EMAIL_RECIPIENT,
+      subject: emailSubject,
+      payload: data,
+      timestamp,
+      status: 'fallback'
+    });
     // Silent recovery so the user interface never breaks
     return {
       success: true,
